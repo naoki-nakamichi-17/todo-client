@@ -251,6 +251,49 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
+  const handleBackup = async () => {
+    const res = await authFetch(`${API_URL}/exportData`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kanban_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRestore = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.assignees || !data.todos) {
+        alert("無効なバックアップファイルです");
+        return;
+      }
+      if (!confirm(`担当者${data.assignees.length}件、Todo${data.todos.length}件を復元します。\n現在のデータは上書きされます。よろしいですか？`)) return;
+      const res = await authFetch(`${API_URL}/importData`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        mutate();
+        mutateAssignees();
+        alert("データを復元しました");
+      } else {
+        alert("復元に失敗しました");
+      }
+    };
+    input.click();
+  };
+
   if (!loggedIn) {
     return <LoginForm onLogin={() => setLoggedIn(true)} />;
   }
@@ -277,6 +320,22 @@ export default function Home() {
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             .txt出力
+          </button>
+          <button
+            type="button"
+            onClick={handleBackup}
+            className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            データ保存
+          </button>
+          <button
+            type="button"
+            onClick={handleRestore}
+            className="bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            データ読込
           </button>
 
           {/* ユーザーアイコン（右上） */}
