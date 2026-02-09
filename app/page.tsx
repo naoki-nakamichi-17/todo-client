@@ -53,10 +53,23 @@ export default function Home() {
   const [showAssigneeManager, setShowAssigneeManager] = useState(false);
   const [editingAssigneeId, setEditingAssigneeId] = useState<number | null>(null);
   const [editingAssigneeName, setEditingAssigneeName] = useState("");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [showMemoModal, setShowMemoModal] = useState(false);
   const [memo, setMemo] = useState("");
   const [memoTextareaHeight, setMemoTextareaHeight] = useState<number | null>(null);
   const memoTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // ユーザーメニュー外クリックで閉じる
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   // 議事メモのテキストエリア高さを保持
   useEffect(() => {
@@ -245,20 +258,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-center mb-8 gap-4">
+        <div className="relative flex items-center justify-center mb-8 gap-4">
           <h1 className="text-gray-800 font-bold text-3xl">
             Kanban Todo
           </h1>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">{getUsername()}</span>
-            <button
-              type="button"
-              onClick={() => { clearAuth(); setLoggedIn(false); }}
-              className="text-sm text-gray-400 hover:text-gray-600"
-            >
-              ログアウト
-            </button>
-          </div>
           <button
             type="button"
             onClick={() => setShowMemoModal(true)}
@@ -275,6 +278,32 @@ export default function Home() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             .txt出力
           </button>
+
+          {/* ユーザーアイコン（右上） */}
+          <div ref={userMenuRef} className="absolute right-0 top-0">
+            <button
+              type="button"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="w-9 h-9 rounded-full bg-teal-500 hover:bg-teal-600 text-white flex items-center justify-center transition-colors text-sm font-bold select-none"
+              title={getUsername() || ""}
+            >
+              {getUsername()?.charAt(0).toUpperCase() || "?"}
+            </button>
+            {showUserMenu && (
+              <div className="absolute right-0 mt-1 bg-white rounded-lg shadow-lg border py-2 min-w-[160px] z-50">
+                <div className="px-4 py-2 text-sm text-gray-700 font-medium border-b">
+                  {getUsername()}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { clearAuth(); setLoggedIn(false); }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  ログアウト
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 担当者管理セクション */}
