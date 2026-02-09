@@ -1,13 +1,15 @@
 import { API_URL } from "@/constants/url";
 import useSWR from "swr";
+import { authFetch, isAuthenticated } from "../lib/auth";
 
 async function fetcher(key: string) {
-  return fetch(key).then((res) => res.json());
+  const res = await authFetch(key);
+  return res.json();
 }
 
 export const useAssignees = () => {
   const { data, isLoading, error, mutate } = useSWR(
-    `${API_URL}/allAssignees`,
+    isAuthenticated() ? `${API_URL}/allAssignees` : null,
     fetcher
   );
 

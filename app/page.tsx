@@ -6,6 +6,8 @@ import { TodoType, TodoStatus, TodoPriority, AssigneeType } from "./types";
 import { useTodos } from "./hooks/useTodos";
 import { useAssignees } from "./hooks/useAssignees";
 import { API_URL } from "@/constants/url";
+import { authFetch, isAuthenticated, getUsername, clearAuth } from "./lib/auth";
+import LoginForm from "./components/LoginForm";
 import {
   DndContext,
   closestCenter,
@@ -32,6 +34,12 @@ const ASSIGNEE_COLORS = [
 ];
 
 export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setLoggedIn(isAuthenticated());
+  }, []);
+
   const titleRef = useRef<HTMLInputElement | null>(null);
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
   const [priority, setPriority] = useState<TodoPriority>("MEDIUM");
@@ -69,7 +77,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch(`${API_URL}/createTodo`, {
+    const response = await authFetch(`${API_URL}/createTodo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -98,7 +106,7 @@ export default function Home() {
 
     const color = ASSIGNEE_COLORS[(assignees?.length || 0) % ASSIGNEE_COLORS.length];
 
-    const response = await fetch(`${API_URL}/createAssignee`, {
+    const response = await authFetch(`${API_URL}/createAssignee`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, color }),
@@ -115,7 +123,7 @@ export default function Home() {
     const trimmed = editingAssigneeName.trim();
     if (!trimmed) return;
 
-    const response = await fetch(`${API_URL}/editAssignee/${id}`, {
+    const response = await authFetch(`${API_URL}/editAssignee/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: trimmed }),
@@ -130,7 +138,7 @@ export default function Home() {
   };
 
   const handleDeleteAssignee = async (id: number) => {
-    const response = await fetch(`${API_URL}/deleteAssignee/${id}`, {
+    const response = await authFetch(`${API_URL}/deleteAssignee/${id}`, {
       method: "DELETE",
     });
 
@@ -179,7 +187,7 @@ export default function Home() {
     mutate(updatedTodos, false);
 
     // サーバーに保存
-    await fetch(`${API_URL}/reorderTodos`, {
+    await authFetch(`${API_URL}/reorderTodos`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: updates }),
@@ -230,6 +238,10 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
+  if (!loggedIn) {
+    return <LoginForm onLogin={() => setLoggedIn(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -237,6 +249,16 @@ export default function Home() {
           <h1 className="text-gray-800 font-bold text-3xl">
             Kanban Todo
           </h1>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">{getUsername()}</span>
+            <button
+              type="button"
+              onClick={() => { clearAuth(); setLoggedIn(false); }}
+              className="text-sm text-gray-400 hover:text-gray-600"
+            >
+              ログアウト
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setShowMemoModal(true)}

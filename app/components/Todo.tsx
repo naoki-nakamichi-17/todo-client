@@ -3,6 +3,7 @@ import { TodoType, TodoStatus, TodoPriority, AssigneeType } from "../types";
 import { useTodos } from "../hooks/useTodos";
 import { useAssignees } from "../hooks/useAssignees";
 import { API_URL } from "@/constants/url";
+import { authFetch } from "../lib/auth";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -53,7 +54,7 @@ const Todo = ({ todo }: TodoProps) => {
   const handleEdit = async () => {
     setIsEditing(!isEditing);
     if (isEditing) {
-      const response = await fetch(`${API_URL}/editTodo/${todo.id}`, {
+      const response = await authFetch(`${API_URL}/editTodo/${todo.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -75,7 +76,7 @@ const Todo = ({ todo }: TodoProps) => {
   };
 
   const handleDelete = async (id: number) => {
-    const response = await fetch(`${API_URL}/deleteTodo/${todo.id}`, {
+    const response = await authFetch(`${API_URL}/deleteTodo/${todo.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
@@ -87,7 +88,7 @@ const Todo = ({ todo }: TodoProps) => {
   };
 
   const changeStatus = async (newStatus: TodoStatus) => {
-    const response = await fetch(`${API_URL}/editTodo/${todo.id}`, {
+    const response = await authFetch(`${API_URL}/editTodo/${todo.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
