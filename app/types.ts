@@ -13,6 +13,7 @@ export type TodoType = {
   description?: string;
   status: TodoStatus;
   priority: TodoPriority;
+  sortOrder: number;
   assigneeId?: number | null;
   assignee?: AssigneeType | null;
 };

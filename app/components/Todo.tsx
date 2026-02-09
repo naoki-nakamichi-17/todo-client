@@ -3,6 +3,8 @@ import { TodoType, TodoStatus, TodoPriority, AssigneeType } from "../types";
 import { useTodos } from "../hooks/useTodos";
 import { useAssignees } from "../hooks/useAssignees";
 import { API_URL } from "@/constants/url";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type TodoProps = {
   todo: TodoType;
@@ -32,6 +34,21 @@ const Todo = ({ todo }: TodoProps) => {
   );
   const { todos, mutate } = useTodos();
   const { assignees } = useAssignees();
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: todo.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const handleEdit = async () => {
     setIsEditing(!isEditing);
@@ -88,8 +105,28 @@ const Todo = ({ todo }: TodoProps) => {
   const priorityStyle = PRIORITY_STYLES[todo.priority];
 
   return (
-    <div className={`bg-white rounded-lg shadow p-4 border-l-4 ${priorityStyle.border}`}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-lg shadow p-4 border-l-4 ${priorityStyle.border}`}
+    >
       <div className="flex items-start justify-between gap-2">
+        {/* ドラッグハンドル */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="mt-1 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
+          aria-label="ドラッグして並べ替え"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="5" cy="3" r="1.5" />
+            <circle cx="11" cy="3" r="1.5" />
+            <circle cx="5" cy="8" r="1.5" />
+            <circle cx="11" cy="8" r="1.5" />
+            <circle cx="5" cy="13" r="1.5" />
+            <circle cx="11" cy="13" r="1.5" />
+          </svg>
+        </button>
         <div className="flex-1 min-w-0">
           {isEditing ? (
             <div className="space-y-2">
