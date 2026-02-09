@@ -321,23 +321,6 @@ export default function Home() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             .txt出力
           </button>
-          <button
-            type="button"
-            onClick={handleBackup}
-            className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            データ保存
-          </button>
-          <button
-            type="button"
-            onClick={handleRestore}
-            className="bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            データ読込
-          </button>
-
           {/* ユーザーアイコン（右上） */}
           <div ref={userMenuRef} className="absolute right-0 top-0">
             <button
@@ -353,6 +336,26 @@ export default function Home() {
                 <div className="px-4 py-2 text-sm text-gray-700 font-medium border-b">
                   {getUsername()}
                 </div>
+                {getUsername() === "admin" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => { handleBackup(); setShowUserMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                      データ保存
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { handleRestore(); setShowUserMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors inline-flex items-center gap-2 border-b"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      データ読込
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={() => { clearAuth(); setLoggedIn(false); }}
