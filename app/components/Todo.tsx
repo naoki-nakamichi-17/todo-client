@@ -103,7 +103,10 @@ const Todo = ({ todo }: TodoProps) => {
     }
   };
 
-  const priorityStyle = PRIORITY_STYLES[todo.priority];
+  const isDone = todo.status === "DONE";
+  const priorityStyle = isDone
+    ? { bg: "bg-gray-100", text: "text-gray-400", border: "border-l-gray-300" }
+    : PRIORITY_STYLES[todo.priority];
 
   return (
     <div
@@ -139,11 +142,11 @@ const Todo = ({ todo }: TodoProps) => {
                 placeholder="タイトル"
               />
               <textarea
-                className="border rounded py-1 px-2 w-full text-sm resize-none"
+                className="border rounded py-1 px-2 w-full text-sm resize-y min-h-[60px]"
                 value={editedDescription}
                 onChange={(e) => setEditedDescription(e.target.value)}
                 placeholder="概要"
-                rows={2}
+                rows={3}
               />
               <div className="flex gap-1">
                 {(["HIGH", "MEDIUM", "LOW"] as TodoPriority[]).map((p) => (
@@ -191,15 +194,13 @@ const Todo = ({ todo }: TodoProps) => {
                   </span>
                 )}
                 <h3
-                  className={`font-medium text-gray-900 ${
-                    todo.status === "DONE" ? "line-through text-gray-500" : ""
-                  }`}
+                  className={`font-medium ${isDone ? "text-gray-400" : "text-gray-900"}`}
                 >
                   {todo.title}
                 </h3>
               </div>
               {todo.description && (
-                <p className="text-sm text-gray-600 mt-1">{todo.description}</p>
+                <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{todo.description}</p>
               )}
             </>
           )}

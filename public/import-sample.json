@@ -1,0 +1,137 @@
+{
+  "todos": [
+    {
+      "title": "ClaudeCodeを単体試験での使用・ナレッジのまとめ",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "【FastAPI】質問一覧表示処理(単体テスト）",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": "Kasadate"
+    },
+    {
+      "title": "【FastAPI】アセスメント回答一覧の表示(単体テスト）",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": "Kasadate"
+    },
+    {
+      "title": "【FastAPI】アセスメント回答送信(単体テスト）",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": "Kasadate"
+    },
+    {
+      "title": "要件定義　非機能要件（セキュリティ）",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": null
+    },
+    {
+      "title": "要件定義（運用保守）",
+      "description": "",
+      "status": "TODO",
+      "priority": "HIGH",
+      "assigneeName": null
+    },
+    {
+      "title": "(Udemy)Claude AIマスターコース　基礎から実践まで使いこなす完全ガイド【最新Opus4.5対応】視聴",
+      "description": "",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeName": null
+    },
+    {
+      "title": "Docker, ECS学習（Udemy）_12.5h",
+      "description": "【完全版】AWS ECSコンテナアプリケーション開発（入門から実践まで）\nhttps://persol-eng.udemy.com/course/ok-aws-ecs/learn/lecture/42801670?start=150#overview",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "Python学習（Udemy）_11h",
+      "description": "最速で5つのPythonWebアプリを開発\nhttps://persol-eng.udemy.com/course/python-streamlit/learn/lecture/25936470#overview",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "ClaudeCode資料読込",
+      "description": "・ベストプラクティス\n・Skill作成について",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "（FastAPI）アセスメント回答送信・値レビュー指摘取り込み",
+      "description": "レビュー指摘についてクラス構成下記のソースコードともに修正\nhttps://github.com/shinobut-takahata/project-templates/blob/feature/example-simple/docs/did/product-requirements.md 要件指標",
+      "status": "DOING",
+      "priority": "HIGH",
+      "assigneeName": "Takahata"
+    },
+    {
+      "title": "要件定義（性能）",
+      "description": "",
+      "status": "DOING",
+      "priority": "HIGH",
+      "assigneeName": null
+    },
+    {
+      "title": "（FastAPI）サーバサイド側で作成した画面のプロジェクト構成・クラス図の作成",
+      "description": "",
+      "status": "DOING",
+      "priority": "MEDIUM",
+      "assigneeName": null
+    },
+    {
+      "title": "AIチーム開発ノウハウ習熟",
+      "description": "チーム開発で生成AIを使った製造をするときに必要なプロンプトやSkill、テンプレートを用意する",
+      "status": "DOING",
+      "priority": "HIGH",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "Pythonアプリ作成（チーム開発）",
+      "description": "題材を決めてClaudeを複数起動してそれぞれの端末でソースコードを書かせてみる\n（Nextjs + Python）",
+      "status": "DOING",
+      "priority": "MEDIUM",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "Pythonアプリ作成（個人学習）",
+      "description": "仮想通貨トレードアプリ作成\nnumpy, pandas, scikit-learn, pi",
+      "status": "DOING",
+      "priority": "MEDIUM",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "要件定義　非機能要件（信頼性）",
+      "description": "https://www.ipa.go.jp/archive/digital-architecture/iyoushinkousent03-b.html",
+      "status": "DONE",
+      "priority": "HIGH",
+      "assigneeName": null
+    },
+    {
+      "title": "Todoアプリの改修",
+      "description": "**空き時間にエンハンス\n・レイアウト調整\n・概要を見やすくしたため、\n・議事メモボタンを追加\n・txt出力ボタンを追加\n・タスク一括登録ボタン追加\n・(pilot) IT業務プラン見積",
+      "status": "DONE",
+      "priority": "HIGH",
+      "assigneeName": "Nakamichi"
+    },
+    {
+      "title": "データ分析学習",
+      "description": "データ分析・ゼロからはじめるデータ分析入門〜現場で成果を出すための実践的テクニック",
+      "status": "DONE",
+      "priority": "HIGH",
+      "assigneeName": "Nakamichi"
+    }
+  ]
+}

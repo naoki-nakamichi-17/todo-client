@@ -1,6 +1,8 @@
 "use client";
 
 import Todo from "./components/Todo";
+import WorkAllocationModal from "./components/WorkAllocationModal";
+import TaskImportModal from "./components/TaskImportModal";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { TodoType, TodoStatus, TodoPriority, AssigneeType } from "./types";
 import { useTodos } from "./hooks/useTodos";
@@ -56,6 +58,8 @@ export default function Home() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [showMemoModal, setShowMemoModal] = useState(false);
+  const [showWorkAllocation, setShowWorkAllocation] = useState(false);
+  const [showTaskImport, setShowTaskImport] = useState(false);
   const [memo, setMemo] = useState("");
   const [memoTextareaHeight, setMemoTextareaHeight] = useState<number | null>(null);
   const memoTextareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -294,6 +298,45 @@ export default function Home() {
     input.click();
   };
 
+  const handleImportJson = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data.todos || !Array.isArray(data.todos)) {
+          alert("無効なファイルです。todosキーを持つJSONファイルを選択してください。");
+          return;
+        }
+        const validCount = data.todos.filter((t: { title?: string }) => t.title).length;
+        if (validCount === 0) {
+          alert("インポート可能なタスクがありません。");
+          return;
+        }
+        if (!confirm(`${validCount}件のタスクを追加します。よろしいですか？`)) return;
+        const res = await authFetch(`${API_URL}/importTodos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ todos: data.todos }),
+        });
+        if (res.ok) {
+          const result = await res.json();
+          mutate();
+          alert(`${result.created}件のタスクをインポートしました。`);
+        } else {
+          alert("インポートに失敗しました。");
+        }
+      } catch {
+        alert("ファイルの読み込みに失敗しました。正しいJSONファイルを選択してください。");
+      }
+    };
+    input.click();
+  };
+
   if (!loggedIn) {
     return <LoginForm onLogin={() => setLoggedIn(true)} />;
   }
@@ -348,11 +391,19 @@ export default function Home() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => { handleImportJson(); setShowUserMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      JSONインポート
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => { handleRestore(); setShowUserMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors inline-flex items-center gap-2 border-b"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                      データ読込
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v20l16-10L4 2z"/></svg>
+                      データ復元
                     </button>
                   </>
                 )}
@@ -522,38 +573,58 @@ export default function Home() {
           </div>
         </form>
 
-        {/* 担当者フィルター */}
-        {assignees && assignees.length > 0 && (
-          <div className="flex items-center gap-2 mb-6 flex-wrap">
-            <span className="text-gray-600 text-sm font-medium">フィルター:</span>
-            <button
-              type="button"
-              onClick={() => setFilterAssigneeId("all")}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                filterAssigneeId === "all"
-                  ? "bg-gray-700 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              全員
-            </button>
-            {(assignees || []).map((a: AssigneeType) => (
+        {/* 担当者フィルター + 作業配分・インポートボタン */}
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          {assignees && assignees.length > 0 && (
+            <>
+              <span className="text-gray-600 text-sm font-medium">フィルター:</span>
               <button
-                key={a.id}
                 type="button"
-                onClick={() => setFilterAssigneeId(a.id)}
+                onClick={() => setFilterAssigneeId("all")}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filterAssigneeId === a.id
-                    ? "text-white"
+                  filterAssigneeId === "all"
+                    ? "bg-gray-700 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
-                style={filterAssigneeId === a.id ? { backgroundColor: a.color } : {}}
               >
-                {a.name}
+                全員
               </button>
-            ))}
+              {(assignees || []).map((a: AssigneeType) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setFilterAssigneeId(a.id)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    filterAssigneeId === a.id
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  style={filterAssigneeId === a.id ? { backgroundColor: a.color } : {}}
+                >
+                  {a.name}
+                </button>
+              ))}
+            </>
+          )}
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              type="button"
+              onClick={() => setShowTaskImport(true)}
+              className="bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 16l-4-4-4 4"/><path d="M12 12v9"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              タスク一括登録
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowWorkAllocation(true)}
+              className="bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium py-1.5 px-4 rounded-lg transition-colors inline-flex items-center gap-1.5"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              作業配分
+            </button>
           </div>
-        )}
+        </div>
 
         {/* カンバンボード */}
         <DndContext
@@ -640,6 +711,19 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* タスクインポートモーダル */}
+      <TaskImportModal
+        isOpen={showTaskImport}
+        onClose={() => setShowTaskImport(false)}
+        onImported={() => { mutate(); setShowTaskImport(false); }}
+      />
+
+      {/* 作業配分モーダル */}
+      <WorkAllocationModal
+        isOpen={showWorkAllocation}
+        onClose={() => setShowWorkAllocation(false)}
+      />
     </div>
   );
 }
