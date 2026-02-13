@@ -32,6 +32,9 @@ type TimelineEntry = {
   durationSlots: number;
 };
 
+// モジュールレベルキャッシュ（モーダル閉→開で保持、リロードでリセット）
+let cachedEntries: TimelineEntry[] = [];
+
 // ---- ヘルパー関数 ----
 function slotToTimeString(slot: number): string {
   const hours = Math.floor(slot / 2);
@@ -224,8 +227,15 @@ export default function WorkAllocationModal({ isOpen, onClose }: Props) {
   // 担当者フィルター
   const [selectedAssigneeId, setSelectedAssigneeId] = useState<number | "all">("all");
 
-  // タイムラインエントリ
-  const [entries, setEntries] = useState<TimelineEntry[]>([]);
+  // タイムラインエントリ（モジュールレベルキャッシュから復元）
+  const [entries, setEntriesState] = useState<TimelineEntry[]>(cachedEntries);
+  const setEntries = useCallback((updater: TimelineEntry[] | ((prev: TimelineEntry[]) => TimelineEntry[])) => {
+    setEntriesState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      cachedEntries = next;
+      return next;
+    });
+  }, []);
 
   // リサイズ状態
   const [resizingEntryId, setResizingEntryId] = useState<string | null>(null);
@@ -252,6 +262,21 @@ export default function WorkAllocationModal({ isOpen, onClose }: Props) {
       return true;
     });
   }, [todos, selectedAssigneeId]);
+
+  // DONEになったタスクをタイムラインから自動削除 & todoデータを最新に同期
+  useEffect(() => {
+    if (!todos || entries.length === 0) return;
+    const todoMap = new Map(todos.map((t) => [t.id, t]));
+    const updated = entries
+      .filter((e) => {
+        const todo = todoMap.get(e.todoId);
+        return todo && todo.status !== "DONE";
+      })
+      .map((e) => ({ ...e, todo: todoMap.get(e.todoId)! }));
+    if (updated.length !== entries.length) {
+      setEntries(updated);
+    }
+  }, [todos]);
 
   // 配置済みtodoIdのセット
   const placedTodoIds = useMemo(() => new Set(entries.map((e) => e.todoId)), [entries]);
